@@ -11,7 +11,7 @@ app = Flask(__name__, template_folder = template_dir)
 @app.route('/')
 def home():
     cursor = db.database.cursor()
-    cursor.execute("SELECT * FROM users")
+    cursor.execute("SELECT * FROM martin")
     myresult = cursor.fetchall()
     #Convertir los datos a diccionario
     insertObject = []
@@ -20,26 +20,28 @@ def home():
         insertObject.append(dict(zip(columnNames, record)))
     cursor.close()
     return render_template('index.html', data=insertObject)
-
+try:
 #Ruta para guardar usuarios en la bdd
-@app.route('/user', methods=['POST'])
-def addUser():
-    username = request.form['username']
-    name = request.form['name']
-    password = request.form['password']
+    @app.route('/user', methods=['POST'])
+    def addUser():
+        nombre = request.form['nombre']
+        asignatura = request.form['asignatura']
+        nota = request.form['nota']
 
-    if username and name and password:
-        cursor = db.database.cursor()
-        sql = "INSERT INTO users (username, name, password) VALUES (%s, %s, %s)"
-        data = (username, name, password)
-        cursor.execute(sql, data)
-        db.database.commit()
-    return redirect(url_for('home'))
+        if nombre and asignatura and nota:
+            cursor = db.database.cursor()
+            sql = "INSERT INTO martin (nombre, asignatura, nota) VALUES (%s, %s, %s)"
+            data = (nombre, asignatura, nota)
+            cursor.execute(sql, data)
+            db.database.commit()
+        return redirect(url_for('home'))
+except ValueError:
+    print("Tipo de dato incorrecto")
 
 @app.route('/delete/<string:id>')
 def delete(id):
     cursor = db.database.cursor()
-    sql = "DELETE FROM users WHERE id=%s"
+    sql = "DELETE FROM martin WHERE id=%s"
     data = (id,)
     cursor.execute(sql, data)
     db.database.commit()
@@ -47,17 +49,24 @@ def delete(id):
 
 @app.route('/edit/<string:id>', methods=['POST'])
 def edit(id):
-    username = request.form['username']
-    name = request.form['name']
-    password = request.form['password']
+    nombre = request.form['nombre']
+    asignatura = request.form['asignatura']
+    nota = request.form['nota']
 
-    if username and name and password:
+    if nombre and asignatura and nota:
         cursor = db.database.cursor()
-        sql = "UPDATE users SET username = %s, name = %s, password = %s WHERE id = %s"
-        data = (username, name, password, id)
+        sql = "UPDATE martin SET nombre = %s, asignatura = %s, nota = %s WHERE id = %s"
+        data = (nombre, asignatura, nota, id)
         cursor.execute(sql, data)
         db.database.commit()
     return redirect(url_for('home'))
 
+@app.route('/jugar/', methods=(['GET']))
+def jugar():
+    
+    return render_template('jugar.html')
+
+
+
 if __name__ == '__main__':
-    app.run(debug=True, port=4000)
+    app.run(debug=True, port=5500)
